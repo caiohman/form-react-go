@@ -1,0 +1,7 @@
+services:
+  backend:
+    build:
+      context: ./backend-go/
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
