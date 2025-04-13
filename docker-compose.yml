@@ -1,14 +1,12 @@
 services:
-  backend:
-    build:
-      context: ./backend-go/
-      dockerfile: Dockerfile
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: caio
+      MYSQL_DATABASE: finances
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
     ports:
-      - "8090:8090"
-  
-  frontend:
-    build:
-      context: ./frontend-nextjs/
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"  
+      - "3306:3306"
+# mysql -u root -p
+# use db;
