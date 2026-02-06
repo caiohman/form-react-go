@@ -5,7 +5,7 @@ services:
       MYSQL_ROOT_PASSWORD: caio
       MYSQL_DATABASE: finances
     volumes:
-      - ./db:/docker-entrypoint-initdb.d/
+      - ./db:/docker-entrypoint-initdb.d/:z
     ports:
       - "3306:3306"
 # mysql -u root -p

@@ -1,0 +1,20 @@
+[Unit]
+Description=MySQL Container Service
+# After the network is up (if using a specific network, e.g., 'my-app.network')
+# After=my-app.network
+
+# mysql.container
+[Container]
+ContainerName=mysql
+Image=docker.io/library/mysql:latest
+Environment=MYSQL_ROOT_PASSWORD=caio
+Environment=MYSQL_DATABASE=finances
+Volume=./db:/docker-entrypoint-initdb.d/:z
+PublishPort=3306:3306
+
+# [Service]
+# Restart=always
+
+# to run rootless
+# copy this file to folder ~.config/containers/systemd
+# /usr/libexec/podman/quadlet -user -v ~/.config/systemd/user/
