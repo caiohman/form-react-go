@@ -13,6 +13,7 @@ import BankCard from "./bankCard";
 import Bank from "./Bank";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import BankChart from "./bankChart";
+import NewTransaction from "./NewTransaction";
 
 export default function Home() {
   const [valueTotal, setValueTotal] = useState(0);
@@ -82,6 +83,9 @@ export default function Home() {
       </section>
       <section id="chart" className="flex flex-row justify-center">
         <BankChart />
+      </section>
+      <section>
+        <NewTransaction banks={banks}/>
       </section>
     </div>
   );

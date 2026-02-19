@@ -23,6 +23,11 @@ type Chart struct {
 	Bank int32 `json:"bank"`
 }
 
+type Categories struct {
+	Id int32 `json:"id"`
+	Name string `json:"name"`
+}
+
 func getDbConnection() (*sql.DB, error) {
 	dbConnection := mysql.Config{
 		User:   "root",
@@ -112,6 +117,33 @@ func getChart(db *sql.DB) ([]Chart, error) {
 	return chartValues, nil
 }
 
+func getCategories(db *sql.DB) ([]Categories, error) {
+	var categoriesValues []Categories
+
+	rows, err := db.Query(`select * from categories;`)
+
+	if err != nil {
+		return nil, formattedIO.Errorf("Error %v", err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var categoryValue Categories
+
+		if err := rows.Scan(&categoryValue.Id, &categoryValue.Name); err != nil {
+			return nil, formattedIO.Errorf("Error %v", err)
+		}
+
+		categoriesValues = append(categoriesValues, categoryValue)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, formattedIO.Errorf("Error %v", err)
+	}
+
+	return categoriesValues, nil
+}
+
 
 func main() {
 	var db *sql.DB
@@ -141,6 +173,16 @@ func main() {
 
 		return c.JSON(chartValues)
 	})
+	app.Get("/getcategories", func(c fiber.Ctx) error {
+		categoriesValues, err := getCategories(db)
+
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(categoriesValues)
+	})
+
 
 	log.Fatal(app.Listen(":8090"))
 }
