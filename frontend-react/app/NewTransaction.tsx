@@ -17,14 +17,18 @@ import {
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
-  ComboboxList,
+  ComboboxList
 } from "@/components/ui/combobox"
 import CategoriesData from "./CategoriesData"
 import { useState, useEffect } from "react";
 import BankProp from "./BankProp"
+import Bank from "./Bank"
 
 export default function NewTransaction({banks} : BankProp) {
   const [categoriestData, setCategoriesData] = useState<CategoriesData[]>([]);
+  const [bankSelected, setBankSelected] = useState<Bank>({ id: 0, name: '', total: 0 })
+  const [valueSelected, setValueSelected] = useState<string>('')
+  const [categorySelected, setCategorySelected] = useState<CategoriesData>({ id : 0,  name : ''})
 
   useEffect(() => {
     fetch("http://localhost:8090/getcategories")
@@ -40,6 +44,16 @@ export default function NewTransaction({banks} : BankProp) {
       });
   }, []);
 
+  const submitClick = () => {
+    if (bankSelected.id !== 0 && categorySelected.id !== 0 && Number(valueSelected) !== 0) {
+      fetch("http://localhost:8090/setnewtransaction", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({value: valueSelected, bank: bankSelected.id, category: categorySelected.id})
+      })
+    }
+  }
+
   return (
     <Popover>
     <PopoverTrigger asChild>
@@ -47,24 +61,24 @@ export default function NewTransaction({banks} : BankProp) {
     </PopoverTrigger>
     <PopoverContent>
       <PopoverHeader>
-        {/*<PopoverTitle>New </PopoverTitle>
-        <PopoverDescription>Description text here.</PopoverDescription>*/}
       </PopoverHeader>
       <FieldGroup className="gap-4">
         <Field orientation="horizontal">
           <FieldLabel htmlFor="value" className="w-1/2">
             Value
           </FieldLabel>
-          <Input id="value"/>
+          <Input id="value" value={valueSelected} onChange={ (newValue) => setValueSelected(newValue.target.value)}/>
         </Field>
         <Field orientation="horizontal">
           <FieldLabel htmlFor="bank" className="w-1/2">
             Bank
           </FieldLabel>
-            <Combobox id="bank"
+          <Combobox id="bank"
               items={banks}
+              value={bankSelected}
+              onValueChange={(newValue) => { if ( newValue != null) setBankSelected(newValue) }  }
               itemToStringValue={(item) => item.name}>
-              <ComboboxInput />
+                <ComboboxInput value={(bankSelected.name)}/>
                 <ComboboxContent>
                   <ComboboxEmpty>No items found.</ComboboxEmpty>
                   <ComboboxList>
@@ -83,8 +97,10 @@ export default function NewTransaction({banks} : BankProp) {
           </FieldLabel>
             <Combobox id="category"
               items={categoriestData}
+              value={categorySelected}
+              onValueChange={(newValue) => { if ( newValue != null) setCategorySelected(newValue) }  }
               itemToStringValue={(item) => item.name}>
-                <ComboboxInput />
+                <ComboboxInput value={(categorySelected.name)}/>
                 <ComboboxContent>
                   <ComboboxEmpty>No items found.</ComboboxEmpty>
                   <ComboboxList>
@@ -97,7 +113,7 @@ export default function NewTransaction({banks} : BankProp) {
                 </ComboboxContent>
           </Combobox>
           </Field>
-          <Button>Submit</Button>
+          <Button onClick={submitClick}>Submit</Button>
       </FieldGroup>
     </PopoverContent>
   </Popover>

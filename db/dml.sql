@@ -12,8 +12,7 @@ create table if not exists bank (
 );
 
 create table if not exists transactions (
-    id int,
-    involved varchar(255),
+    id int auto_increment,
     value int,
     instant datetime,
     categories int,

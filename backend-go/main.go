@@ -28,6 +28,12 @@ type Categories struct {
 	Name string `json:"name"`
 }
 
+type NewTransaction struct {
+	Value string `json:"value"`
+	Bank int32 `json:"bank"`
+	Category int32 `json:"category"`
+}
+
 func getDbConnection() (*sql.DB, error) {
 	dbConnection := mysql.Config{
 		User:   "root",
@@ -144,6 +150,20 @@ func getCategories(db *sql.DB) ([]Categories, error) {
 	return categoriesValues, nil
 }
 
+func setNewTransaction(db *sql.DB, newTransaction NewTransaction) (error){
+
+	rows, err := db.Query(`insert into transactions (value , categories, bank, instant) values (?, ?, ?, now() );`,
+		newTransaction.Value , newTransaction.Category, newTransaction.Bank)
+
+	if err != nil {
+		return formattedIO.Errorf("Error %v", err)
+	}
+
+	defer rows.Close()
+
+	return nil
+}
+
 
 func main() {
 	var db *sql.DB
@@ -182,7 +202,21 @@ func main() {
 
 		return c.JSON(categoriesValues)
 	})
+	app.Post("/setnewtransaction", func(c fiber.Ctx)  error{
 
+		newTransaction := new(NewTransaction)
 
+		if err := c.Bind().Body(newTransaction); err != nil {
+        return err
+    	}
+
+     	response := setNewTransaction(db, *newTransaction)
+
+     	if response == nil {
+    		return c.SendStatus(fiber.StatusCreated)
+      	}
+
+       	return c.Status(fiber.StatusBadRequest).SendString(response.Error())
+	})
 	log.Fatal(app.Listen(":8090"))
 }
